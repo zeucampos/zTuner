@@ -1,0 +1,11 @@
+{
+  "name": "zTuner",
+  "version": "1.0.0",
+  "description": "Guitar tuner",
+  "main": "index.html",
+  "author": "Eliseu Campos (@zeucampos)",
+  "license": "MIT",
+  "dependencies": {
+    "pitchy": "^4.0.7"
+  }
+}
