@@ -1,0 +1,56 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: radial-gradient(#e66465, #9198e5);
+}
+
+@font-face {
+    font-family: 'Silkscreen';
+    src: url('Silkscreen-Regular.woff2') format('woff2'),
+        url('Silkscreen-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+#board {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#interface {
+  width: 400px;
+  margin: auto;
+  border-radius: 32px;
+  z-index: 1;
+}
+#overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 0;
+}
+#overlay-circle {
+  height: 600px;
+  width: 600px;
+  /* background-color: #e6646488; */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
+}
+#overlay-circle-2nd {
+  height: 500px;
+  width: 500px;
+  /* background-color: rgba(255, 255, 255, 0.2); */
+  border-radius: 50%;
+  box-shadow: 0 0 50px rgba(255, 255, 255, 0.4);
+}

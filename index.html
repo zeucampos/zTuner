@@ -6,54 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
 
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        background: radial-gradient(#e66465, #9198e5);
-      }
-      #board {
-        width: 100vw;
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      #interface {
-        width: 400px;
-        margin: auto;
-        border-radius: 32px;
-        z-index: 1;
-      }
-      #overlay {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100vw;
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 0;
-      }
-      #overlay-circle {
-        height: 600px;
-        width: 600px;
-        /* background-color: #e6646488; */
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
-      }
-      #overlay-circle-2nd {
-        height: 500px;
-        width: 500px;
-        /* background-color: rgba(255, 255, 255, 0.2); */
-        border-radius: 50%;
-        box-shadow: 0 0 50px rgba(255, 255, 255, 0.4);
-      }
-    </style>
+    <link rel="stylesheet" href="assets/css/main.css" />
   </head>
   <body>
     <div id="overlay">
@@ -65,7 +18,7 @@
     </div>
 
     <div id="board">
-      <canvas id="interface" width="400" />
+      <canvas id="interface" width="400"></canvas>
     </div>
 
     <p id="pitch"></p>
@@ -75,96 +28,43 @@
 
     <script type="module">
       import { PitchDetector } from "https://esm.sh/pitchy@4";
+      import renderInterface from "./src/renderInterface.js";
+      import tunerState from "./src/tunerState.js";
 
-      const ui = document.getElementById("interface");
-      ui.height = window.innerHeight - 64;
+      const tuner = tunerState();
 
-      var ctx = ui.getContext("2d");
-      ctx.fillStyle = "#301d26";
-      ctx.fillRect(0, 0, ui.width, ui.height);
+      const HTMLCanvas = document.getElementById("interface");
+      HTMLCanvas.height = window.innerHeight - 64;
 
-      const pitchList = [
-        {
-          name: "E",
-          frequency: 82
-        },
-        {
-          name: "A",
-          frequency: 110
-        },
-        {
-          name: "D",
-          frequency: 147
-        },
-        {
-          name: "G",
-          frequency: 196
-        },
-        {
-          name: "B",
-          frequency: 247
-        },
-        {
-          name: "E",
-          frequency: 330
-        }
-      ];
+      renderInterface(HTMLCanvas, tuner.state, requestAnimationFrame);
 
-      let font = new FontFace(
-        "Testao",
-        "url(https://fonts.gstatic.com/s/pangolin/v6/cY9GfjGcW0FPpi-tWMfN79z4i6BH.woff2)"
-      );
-
-      font.load().then((font) => {
-        document.fonts.add(font);
-
-        ctx.fillStyle = "#e66465";
-        ctx.font = "600 64px Courier New";
-        ctx.textAlign = "center";
-        ctx.fillText("E", ui.width / 2, ui.height / 2 - 200, 100);
-      });
-
-      ctx.fillStyle = "white";
-      ctx.font = "16px Helvetica";
-      ctx.textAlign = "center";
-      ctx.fillText("82Hz", ui.width / 2, ui.height / 2 - 170, 100);
-
-      const steps = Array.from(Array(60).keys());
-
-      steps.forEach((step, k) => {
-        ctx.fillStyle = "#e66465";
-        ctx.fillOpacity = 0;
-        ctx.fillRect(
-          (ui.width / steps.length) * k + 2,
-          ui.height / 2 - 100,
-          ui.width / steps.length - 4,
-          200
-        );
-      });
-
-      function updatePitch(analyserNode, detector, input, sampleRate) {
+      export function updatePitch(analyserNode, detector, input, sampleRate) {
         analyserNode.getFloatTimeDomainData(input);
         const [pitch, clarity] = detector.findPitch(input, sampleRate);
 
-        window.document.getElementById("pitch").textContent = `${
-          Math.round(pitch * 10) / 10
-        } Hz`;
-        window.document.getElementById("clarity").textContent = `${Math.round(
-          clarity * 100
-        )} %`;
+        tuner.changePitch(Math.round(pitch * 10) / 10);
+        tuner.changeFrequency(clarity * 100);
+
+        // window.document.getElementById("pitch").textContent = `${
+        //   Math.round(pitch * 10) / 10
+        // } Hz`;
+        // window.document.getElementById("clarity").textContent = `${Math.round(
+        //   clarity * 100
+        // )} %`;
         window.setTimeout(
           () => updatePitch(analyserNode, detector, input, sampleRate),
           100
         );
       }
 
-      window.document.addEventListener("DOMContentLoaded", () => {
-        const audioContext = new window.AudioContext();
-        const analyserNode = audioContext.createAnalyser();
+      const audioContext = new window.AudioContext();
 
+      window.document.addEventListener("DOMContentLoaded", () => {
         window.document
           .getElementById("resume-button")
           .addEventListener("click", () => audioContext.resume());
+
+        const analyserNode = audioContext.createAnalyser();
 
         navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
           audioContext.createMediaStreamSource(stream).connect(analyserNode);
